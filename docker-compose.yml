@@ -1,0 +1,19 @@
+version: '3.6'
+
+services:
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    restart: always
+    ports:
+      - 27017:27017
+      
+  psh:
+    image: enekst/product-service-hibernate
+    restart: always
+    container_name: psh
+    ports:
+      - 8080:8080
+    links:
+      - mongodb
+  
