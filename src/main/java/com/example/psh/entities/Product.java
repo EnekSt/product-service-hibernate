@@ -32,6 +32,13 @@ public class Product {
 	public Product() {
 		
 	}
+
+	public Product(String id, String name, String description, List<Parameter> parameters) {
+		this.id = id;
+		this.name = name;
+		this.description = description;
+		this.parameters = parameters;
+	}
 	
 	public String getId() {
 		return this.id;

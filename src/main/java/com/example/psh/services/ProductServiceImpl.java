@@ -11,8 +11,10 @@ import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
 
 import com.example.psh.entities.Product;
+import org.springframework.stereotype.Service;
 
-@Repository
+//@Repository
+@Service
 public class ProductServiceImpl implements ProductService {
 	
 	private EntityManagerFactory emf = Persistence.createEntityManagerFactory("product-service-hibernate");
