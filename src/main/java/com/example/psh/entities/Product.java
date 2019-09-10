@@ -2,6 +2,7 @@ package com.example.psh.entities;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -72,4 +73,16 @@ public class Product {
 		this.parameters = parameters;
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Product product = (Product) o;
+		return Objects.equals(getId(), product.getId());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(getId());
+	}
 }

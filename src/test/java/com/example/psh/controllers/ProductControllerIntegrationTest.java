@@ -2,6 +2,7 @@ package com.example.psh.controllers;
 
 import com.example.psh.entities.Parameter;
 import com.example.psh.entities.Product;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -27,20 +28,26 @@ public class ProductControllerIntegrationTest {
     @Test
     public void testGetProductById() throws JSONException {
 
-        final String path = "/5d775761a7b11b0001317666";
+        // Id of existing product in database
+        final String givenId = "5d775761a7b11b0001317666";
+        final String path = "/" + givenId;
 
         HttpEntity<String> entity = new HttpEntity<>(null, headers);
 
-        ResponseEntity<String> response = restTemplate.exchange(
+        ResponseEntity<Product> response = restTemplate.exchange(
                 baseURI + path,
-                HttpMethod.GET, entity, String.class);
+                HttpMethod.GET, entity, Product.class);
 
-        String expected = "{\"id\":\"5d775761a7b11b0001317666\"," +
+        ObjectMapper mapper = new ObjectMapper();
+
+        /*String expected = "{\"id\":\"5d775761a7b11b0001317666\"," +
                 "\"name\":\"product 1\"," +
                 "\"description\":\"Description of product 1\"," +
-                "\"parameters\":[{\"key\":\"par1\",\"value\":\"par1_val\"},{\"key\":\"par2\",\"value\":\"par2_val\"}]}";
+                "\"parameters\":[{\"key\":\"par1\",\"value\":\"par1_val\"},{\"key\":\"par2\",\"value\":\"par2_val\"}]}";*/
 
-        JSONAssert.assertEquals(expected, response.getBody(), false);
+        Assert.assertNotNull(response.getBody());
+        Assert.assertEquals(response.getBody().getId(), givenId);
+        Assert.assertNotNull(response.getBody().getName());
     }
 
     @Test
