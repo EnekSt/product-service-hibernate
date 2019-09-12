@@ -2,17 +2,17 @@ package com.example.psh.controllers;
 
 import com.example.psh.entities.Parameter;
 import com.example.psh.entities.Product;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.json.JSONException;
-import org.junit.Assert;
-import org.junit.Test;
+import com.example.psh.feignclients.ProductClient;
+import org.junit.*;
 import org.junit.runner.RunWith;
-import org.skyscreamer.jsonassert.JSONAssert;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.*;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -20,96 +20,94 @@ import java.util.List;
 @SpringBootTest
 public class ProductControllerIntegrationTest {
 
-    private final String baseURI = "http://localhost:8080/product";
+    @Autowired
+    private ProductClient productClient;
 
-    private TestRestTemplate restTemplate = new TestRestTemplate();
-    private HttpHeaders headers = new HttpHeaders();
+    private EntityManagerFactory emf = Persistence.createEntityManagerFactory("product-service-hibernate");
+    private EntityManager em = emf.createEntityManager();
 
-    @Test
-    public void testGetProductById() throws JSONException {
+    private List<Product> testProducts = new ArrayList<>();
 
-        // Id of existing product in database
-        final String givenId = "5d775761a7b11b0001317666";
-        final String path = "/" + givenId;
+    @Before
+    public void init() {
 
-        HttpEntity<String> entity = new HttpEntity<>(null, headers);
+        // Create Test Data
+        Product pr1 = new Product(null, "journal", "description of journal",
+                Arrays.asList(new Parameter("par1", "val1"), new Parameter("par2", "val2")));
+        Product pr2 = new Product(null, "mat", "description of mat",
+                Arrays.asList(new Parameter("par1", "newval1"), new Parameter("par3", "val3")));
+        Product pr3 = new Product(null, "mousepad", "description of mousepad",
+                Arrays.asList(new Parameter("par2", "val2"), new Parameter("par3", "newval3")));
+        testProducts.add(pr1);
+        testProducts.add(pr2);
+        testProducts.add(pr3);
 
-        ResponseEntity<Product> response = restTemplate.exchange(
-                baseURI + path,
-                HttpMethod.GET, entity, Product.class);
-
-        ObjectMapper mapper = new ObjectMapper();
-
-        /*String expected = "{\"id\":\"5d775761a7b11b0001317666\"," +
-                "\"name\":\"product 1\"," +
-                "\"description\":\"Description of product 1\"," +
-                "\"parameters\":[{\"key\":\"par1\",\"value\":\"par1_val\"},{\"key\":\"par2\",\"value\":\"par2_val\"}]}";*/
-
-        Assert.assertNotNull(response.getBody());
-        Assert.assertEquals(response.getBody().getId(), givenId);
-        Assert.assertNotNull(response.getBody().getName());
+        em.getTransaction().begin();
+        em.persist(pr1);
+        em.persist(pr2);
+        em.persist(pr3);
+        em.flush();
+        em.getTransaction().commit();
     }
 
     @Test
-    public void testCreateNewProduct() {
-
-        Product product = new Product(null, "test product", "product created by a test method",
-                Arrays.asList(new Parameter("param1", "param1val")));
-
-        final String path = "/";
-        HttpEntity<Product> entity = new HttpEntity<>(product, headers);
-
-        ResponseEntity<Product> response = restTemplate.exchange(
-                baseURI + path,
-                HttpMethod.POST, entity, Product.class);
-
-        Product actual = response.getBody();
-        Assert.assertNotNull(actual);
-        Assert.assertNotNull(actual.getId());
-
-        //TODO: somehow remove inserted test product
+    public void getAllProductsTest() {
+        List<Product> products = productClient.getAllProducts();
+        Assert.assertNotNull(products);
+        Assert.assertTrue(products.size() >= 3);
     }
 
     @Test
-    public void testGetProductsWithParameter() {
+    public void addProductTest() {
 
-        final String path = "/search?parameter=par1";
+        Product product = new Product(null, "New Product", "New description of new product",
+                Arrays.asList(new Parameter("par1", "val1"), new Parameter("newpar", "newval")));
 
-        HttpEntity<String> entity = new HttpEntity<>(null, headers);
-
-        ResponseEntity<List> response = restTemplate.exchange(
-                baseURI + path,
-                HttpMethod.GET, entity, List.class);
-        Assert.assertNotNull(response.getBody());
-        Assert.assertTrue(response.getBody().size() >= 1);
+        Product result = productClient.addProduct(product);
+        testProducts.add(result);
+        Assert.assertNotNull(result);
+        Assert.assertNotNull(result.getId());
+        Assert.assertEquals(product.getName(), result.getName());
+        Assert.assertEquals(product.getDescription(), result.getDescription());
     }
 
     @Test
-    public void testGetProductsByValueOfParameter() {
-
-        final String path = "/search?parameter=par1&par1_val";
-
-        HttpEntity<String> entity = new HttpEntity<>(null, headers);
-
-        ResponseEntity<List> response = restTemplate.exchange(
-                baseURI + path,
-                HttpMethod.GET, entity, List.class);
-        Assert.assertNotNull(response.getBody());
-        Assert.assertTrue(response.getBody().size() >= 1);
+    public void searchProductsByNameTest() {
+        List<String> names = productClient.searchProducts("mousepad", null, null);
+        Assert.assertNotNull(names);
+        Assert.assertFalse(names.isEmpty());
+        Assert.assertTrue(names.stream().allMatch(name -> name.equals("mousepad")));
     }
 
     @Test
-    public void testGetProductsByName() {
-
-        final String path = "/search?name=test product";
-
-        HttpEntity<String> entity = new HttpEntity<>(null, headers);
-
-        ResponseEntity<List> response = restTemplate.exchange(
-                baseURI + path,
-                HttpMethod.GET, entity, List.class);
-        Assert.assertNotNull(response.getBody());
-        Assert.assertTrue(response.getBody().stream().allMatch(a -> a.equals("test product")));
+    public void searchProductsWithParameter() {
+        List<String> names = productClient.searchProducts(null, "par1", null);
+        Assert.assertNotNull(names);
+        Assert.assertFalse(names.isEmpty());
     }
 
+    @Test
+    public void searchProductByParametersValueTest() {
+        List<String> names = productClient.searchProducts(null, "par2", "val2");
+        Assert.assertNotNull(names);
+        Assert.assertTrue(names.size() >= 2);
+    }
+
+    @Test
+    public void getProductByIdTest() {
+        String existingId = testProducts.get(1).getId();
+        Product product = productClient.getProductById(existingId);
+        Assert.assertNotNull(product);
+        Assert.assertEquals(existingId, product.getId());
+    }
+
+    @After
+    public void shutdown() {
+        em.getTransaction().begin();
+        for (Product pr : testProducts) {
+            em.remove(em.contains(pr) ? pr : em.merge(pr));
+        }
+        em.flush();
+        em.getTransaction().commit();
+    }
 }

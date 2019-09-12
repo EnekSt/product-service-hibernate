@@ -19,7 +19,7 @@ import com.example.psh.services.ProductService;
 public class ProductController {
 	
 	@Autowired
-	ProductService service;
+	private ProductService service;
 	
 	@PostMapping(value = "/", produces = "application/JSON")
 	public Product addProduct(@RequestBody Product product) {
