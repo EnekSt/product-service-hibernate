@@ -2,6 +2,8 @@ package com.example.psh.controllers;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,22 +19,27 @@ import com.example.psh.services.ProductService;
 @RestController
 @RequestMapping("/product")
 public class ProductController {
+
+	private final static Logger logger = LoggerFactory.getLogger(ProductController.class);
 	
 	@Autowired
 	private ProductService service;
 	
 	@PostMapping(value = "/", produces = "application/JSON")
 	public Product addProduct(@RequestBody Product product) {
+		logger.info("Controller's " + (new Object() {}.getClass().getEnclosingMethod().getName()) + " method was called");
 		return service.addProduct(product);
 	}
 	
 	@GetMapping(value = "/", produces = "application/JSON")
 	public List<Product> getAllProducts() {
+        logger.info("Controller's " + (new Object() {}.getClass().getEnclosingMethod().getName()) + " method was called");
 		return service.getAllProducts();
 	}
 	
 	@GetMapping(value = "/{id}", produces = "application/JSON")
 	public Product getProductById(@PathVariable String id) {
+        logger.info("Controller's " + (new Object() {}.getClass().getEnclosingMethod().getName()) + " method was called");
 		return service.getProductById(id);
 	}
 	
@@ -40,6 +47,7 @@ public class ProductController {
 	public List<String> searchProducts(@RequestParam(required=false) String name,
 			                           @RequestParam(required=false) String parameter, 
 			                           @RequestParam(required=false) String value) {
+        logger.info("Controller's " + (new Object() {}.getClass().getEnclosingMethod().getName()) + " method was called");
 		return service.searchProducts(name, parameter, value);
 	}
 
