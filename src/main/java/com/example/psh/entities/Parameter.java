@@ -18,7 +18,15 @@ public class Parameter implements Serializable {
 		this.key = key;
 		this.value = value;
 	}
-	
+
+	@Override
+	public String toString() {
+		return "Parameter{" +
+				"key='" + key + '\'' +
+				", value='" + value + '\'' +
+				'}';
+	}
+
 	public String getKey() {
 		return this.key;
 	}

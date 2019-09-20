@@ -21,11 +21,11 @@ public class Product {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Type(type = "objectid")
 	private String id;
-	
+
 	private String name;
-	
+
 	private String description;
-	
+
 	@ElementCollection
 	private List<Parameter> parameters = new ArrayList<>();
 	
@@ -84,5 +84,15 @@ public class Product {
 	@Override
 	public int hashCode() {
 		return Objects.hash(getId());
+	}
+
+	@Override
+	public String toString() {
+		return "Product{" +
+				"id='" + id + '\'' +
+				", name='" + name + '\'' +
+				", description='" + description + '\'' +
+				", parameters=" + parameters +
+				'}';
 	}
 }

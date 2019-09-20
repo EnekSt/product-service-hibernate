@@ -36,7 +36,7 @@ public class LoggingServiceImpl implements LoggingService {
             stringBuilder.append("body=[").append(JsonUtils.asJsonString(body)).append("]");
         }
 
-        logger.info(stringBuilder.toString());
+        logger.debug(stringBuilder.toString());
     }
 
     @Override
@@ -49,7 +49,7 @@ public class LoggingServiceImpl implements LoggingService {
         stringBuilder.append("responseHeaders=[").append(buildHeadersMap(httpServletResponse)).append("] ");
         stringBuilder.append("responseBody=[").append(JsonUtils.asJsonString(body)).append("] ");
 
-        logger.info(stringBuilder.toString());
+        logger.debug(stringBuilder.toString());
     }
 
     private Map<String, String> buildParametersMap(HttpServletRequest httpServletRequest) {

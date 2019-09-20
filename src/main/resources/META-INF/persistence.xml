@@ -6,12 +6,20 @@
 
     <persistence-unit name="product-service-hibernate">
         <provider>org.hibernate.ogm.jpa.HibernateOgmPersistence</provider>
+
+        <class>com.example.psh.entities.Product</class>
+        <class>com.example.psh.entities.Parameter</class>
+
         <properties>
             <property name="hibernate.ogm.datastore.provider" value="mongodb"/>
             <!--<property name="hibernate.ogm.datastore.host" value="mongodb:27017"/>-->
             <property name="hibernate.ogm.datastore.host" value="192.168.1.110:27017"/>
             <property name="hibernate.ogm.datastore.database" value="test"/>
             <property name="hibernate.ogm.datastore.create_database" value="true"/>
+
+
+            <property name="exclude-unlisted-classes" value="true"/>
+            <property name="hibernate.archive.autodetection" value="hbm" />
         </properties>
     </persistence-unit>
 </persistence>

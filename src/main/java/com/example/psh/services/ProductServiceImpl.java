@@ -48,15 +48,15 @@ public class ProductServiceImpl implements ProductService {
 		StringBuilder query = new StringBuilder("db.products.find({");
 		
 		if (name != null) {
-			query.append("'name': '" + name + "'");
+			query.append("'name': '").append(name).append("'");
 			if (parameter != null) {
 				query.append(", ");
 			}
 		}
 		if (parameter != null) {
-			query.append("'parameters': { '$elemMatch': { 'key': '" + parameter + "'");
+			query.append("'parameters': { '$elemMatch': { 'key': '").append(parameter).append("'");
 			if (value != null) {
-				query.append(", 'value': '" + value + "'");
+				query.append(", 'value': '").append(value).append("'");
 			}
 			query.append("} }");
 		}
