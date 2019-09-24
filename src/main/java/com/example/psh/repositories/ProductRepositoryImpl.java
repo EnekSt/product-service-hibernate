@@ -33,7 +33,7 @@ public class ProductRepositoryImpl implements ProductRepository {
     public Product addProduct(Product product) {
         em.getTransaction().begin();
         em.persist(product);
-        em.flush();
+        //em.flush();
         em.getTransaction().commit();
         return product;
     }

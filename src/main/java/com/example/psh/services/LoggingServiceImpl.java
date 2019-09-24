@@ -46,6 +46,7 @@ public class LoggingServiceImpl implements LoggingService {
         stringBuilder.append("RESPONSE ");
         stringBuilder.append("method=[").append(httpServletRequest.getMethod()).append("] ");
         stringBuilder.append("path=[").append(httpServletRequest.getRequestURI()).append("] ");
+        stringBuilder.append("statusCode=[").append(httpServletResponse.getStatus()).append("] ");
         stringBuilder.append("responseHeaders=[").append(buildHeadersMap(httpServletResponse)).append("] ");
         stringBuilder.append("responseBody=[").append(JsonUtils.asJsonString(body)).append("] ");
 

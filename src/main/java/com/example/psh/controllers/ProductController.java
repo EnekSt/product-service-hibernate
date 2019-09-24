@@ -2,6 +2,8 @@ package com.example.psh.controllers;
 
 import java.util.List;
 
+import com.example.psh.errorhandling.exceptions.InvalidIdRepresentationException;
+import com.example.psh.errorhandling.exceptions.ProductNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.psh.entities.Product;
 import com.example.psh.services.ProductService;
 
+import javax.persistence.NoResultException;
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/product")
 public class ProductController {
@@ -25,13 +30,13 @@ public class ProductController {
 	@Autowired
 	private ProductService service;
 	
-	@PostMapping(value = "/", produces = "application/JSON")
-	public Product addProduct(@RequestBody Product product) {
+	@PostMapping(value = "", produces = "application/JSON")
+	public Product addProduct(@Valid @RequestBody Product product) {
 		logger.info("Controller's " + (new Object() {}.getClass().getEnclosingMethod().getName()) + " method was called");
 		return service.addProduct(product);
 	}
 	
-	@GetMapping(value = "/", produces = "application/JSON")
+	@GetMapping(value = "", produces = "application/JSON")
 	public List<Product> getAllProducts() {
         logger.info("Controller's " + (new Object() {}.getClass().getEnclosingMethod().getName()) + " method was called");
 		return service.getAllProducts();
@@ -40,7 +45,16 @@ public class ProductController {
 	@GetMapping(value = "/{id}", produces = "application/JSON")
 	public Product getProductById(@PathVariable String id) {
         logger.info("Controller's " + (new Object() {}.getClass().getEnclosingMethod().getName()) + " method was called");
-		return service.getProductById(id);
+
+		try {
+			return service.getProductById(id);
+		}
+		catch (NoResultException ex) {
+			throw new ProductNotFoundException(id);
+		}
+		catch (IllegalArgumentException ex) {
+			throw new InvalidIdRepresentationException(id);
+		}
 	}
 	
 	@GetMapping(value = "/search", produces = "application/JSON")
@@ -50,5 +64,4 @@ public class ProductController {
         logger.info("Controller's " + (new Object() {}.getClass().getEnclosingMethod().getName()) + " method was called");
 		return service.searchProducts(name, parameter, value);
 	}
-
 }

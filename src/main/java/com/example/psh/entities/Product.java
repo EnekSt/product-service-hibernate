@@ -10,6 +10,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.NotBlank;
 
 import org.hibernate.annotations.Type;
 
@@ -22,6 +23,7 @@ public class Product {
 	@Type(type = "objectid")
 	private String id;
 
+	@NotBlank(message = "Name is mandatory!")
 	private String name;
 
 	private String description;
