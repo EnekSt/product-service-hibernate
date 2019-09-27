@@ -32,19 +32,19 @@ public class ProductController {
 	
 	@PostMapping(value = "", produces = "application/JSON")
 	public Product addProduct(@Valid @RequestBody Product product) {
-		logger.info("Controller's " + (new Object() {}.getClass().getEnclosingMethod().getName()) + " method was called");
+		logger.debug("Controller's " + (new Object() {}.getClass().getEnclosingMethod().getName()) + " method was called");
 		return service.addProduct(product);
 	}
 	
 	@GetMapping(value = "", produces = "application/JSON")
 	public List<Product> getAllProducts() {
-        logger.info("Controller's " + (new Object() {}.getClass().getEnclosingMethod().getName()) + " method was called");
+        logger.debug("Controller's " + (new Object() {}.getClass().getEnclosingMethod().getName()) + " method was called");
 		return service.getAllProducts();
 	}
 	
 	@GetMapping(value = "/{id}", produces = "application/JSON")
 	public Product getProductById(@PathVariable String id) {
-        logger.info("Controller's " + (new Object() {}.getClass().getEnclosingMethod().getName()) + " method was called");
+        logger.debug("Controller's " + (new Object() {}.getClass().getEnclosingMethod().getName()) + " method was called");
 
 		try {
 			return service.getProductById(id);
@@ -61,7 +61,7 @@ public class ProductController {
 	public List<String> searchProducts(@RequestParam(required=false) String name,
 			                           @RequestParam(required=false) String parameter, 
 			                           @RequestParam(required=false) String value) {
-        logger.info("Controller's " + (new Object() {}.getClass().getEnclosingMethod().getName()) + " method was called");
+        logger.debug("Controller's " + (new Object() {}.getClass().getEnclosingMethod().getName()) + " method was called");
 		return service.searchProducts(name, parameter, value);
 	}
 }
