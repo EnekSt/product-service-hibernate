@@ -32,7 +32,7 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
 
-        logger.error("Exception " + ex.getClass().getName() + " occurred.", ex);
+        logger.debug("Exception " + ex.getClass().getName() + " occurred.");
 
         List<String> errors = new ArrayList<>();
         for (FieldError error : ex.getBindingResult().getFieldErrors()) {
@@ -49,7 +49,7 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
 
-        logger.error("Exception " + ex.getClass().getName() + " occurred.", ex);
+        logger.debug("Exception " + ex.getClass().getName() + " occurred.");
 
         List<String> errors = new ArrayList<>();
         ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), errors);
@@ -59,7 +59,7 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleNoHandlerFoundException(NoHandlerFoundException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
 
-        logger.error("Exception " + ex.getClass().getName() + " occurred.", ex);
+        logger.debug("Exception " + ex.getClass().getName() + " occurred.");
 
         List<String> errors = new ArrayList<>();
         ApiError apiError = new ApiError(HttpStatus.NOT_FOUND, ex.getLocalizedMessage(), errors);
@@ -69,7 +69,7 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleMissingServletRequestParameter(MissingServletRequestParameterException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
 
-        logger.error("Exception " + ex.getClass().getName() + " occurred.", ex);
+        logger.debug("Exception " + ex.getClass().getName() + " occurred.");
 
         List<String> errors = new ArrayList<>();
         ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), errors);
@@ -79,7 +79,7 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({ProductNotFoundException.class})
     protected ResponseEntity<Object> handleProductNotFoundException(ProductNotFoundException ex, WebRequest request) {
 
-        logger.error("Exception " + ex.getClass().getName() + " occurred.", ex);
+        logger.debug("Exception " + ex.getClass().getName() + " occurred.");
 
         List<String> errors = new ArrayList<>();
         ApiError apiError = new ApiError(HttpStatus.NOT_FOUND, ex.getLocalizedMessage(), errors);
@@ -89,7 +89,7 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({InvalidIdRepresentationException.class})
     protected ResponseEntity<Object> handleInvalidIdRepresentationException(InvalidIdRepresentationException ex, WebRequest request) {
 
-        logger.error("Exception " + ex.getClass().getName() + " occurred.", ex);
+        logger.debug("Exception " + ex.getClass().getName() + " occurred.");
 
         List<String> errors = new ArrayList<>();
         ApiError apiError = new ApiError(HttpStatus.NOT_FOUND, ex.getLocalizedMessage(), errors);

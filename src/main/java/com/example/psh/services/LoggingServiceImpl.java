@@ -23,34 +23,47 @@ public class LoggingServiceImpl implements LoggingService {
 
         Map<String, String> parameters = buildParametersMap(httpServletRequest);
 
+        // Form request info to log
         stringBuilder.append("REQUEST ");
         stringBuilder.append("method=[").append(httpServletRequest.getMethod()).append("] ");
         stringBuilder.append("path=[").append(httpServletRequest.getRequestURI()).append("] ");
-        stringBuilder.append("headers=[").append(buildHeadersMap(httpServletRequest)).append("] ");
-
         if (!parameters.isEmpty()) {
             stringBuilder.append("parameters=[").append(parameters).append("] ");
         }
 
+        logger.debug(stringBuilder.toString());
+
+        // empty stringBuilder
+        stringBuilder.setLength(0);
+
+        // Form additional request info
+        stringBuilder.append("headers=[").append(buildHeadersMap(httpServletRequest)).append("] ");
         if (body != null) {
             stringBuilder.append("body=[").append(JsonUtils.asJsonString(body)).append("]");
         }
 
-        logger.debug(stringBuilder.toString());
+        logger.trace(stringBuilder.toString());
     }
 
     @Override
     public void logResponse(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object body) {
         StringBuilder stringBuilder = new StringBuilder();
 
+        // Form response info
         stringBuilder.append("RESPONSE ");
         stringBuilder.append("method=[").append(httpServletRequest.getMethod()).append("] ");
         stringBuilder.append("path=[").append(httpServletRequest.getRequestURI()).append("] ");
         stringBuilder.append("statusCode=[").append(httpServletResponse.getStatus()).append("] ");
+
+        logger.debug(stringBuilder.toString());
+
+        stringBuilder.setLength(0);
+
+        // Form additional response info
         stringBuilder.append("responseHeaders=[").append(buildHeadersMap(httpServletResponse)).append("] ");
         stringBuilder.append("responseBody=[").append(JsonUtils.asJsonString(body)).append("] ");
 
-        logger.debug(stringBuilder.toString());
+        logger.trace(stringBuilder.toString());
     }
 
     private Map<String, String> buildParametersMap(HttpServletRequest httpServletRequest) {
