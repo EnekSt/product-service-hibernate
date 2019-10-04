@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -21,6 +22,9 @@ import java.util.Map;
 @Service
 public class RabbitRequestController {
 
+    private static final String ERROR_HANDLER = "errorHandlerForRabbit";
+    private static final String SERVICE_METHOD_HEADER = "service-method";
+
     private static final Logger logger = LoggerFactory.getLogger(RabbitRequestController.class);
 
     @Autowired
@@ -29,29 +33,49 @@ public class RabbitRequestController {
     @Autowired
     private ObjectMapper objectMapper;
 
-    // TODO: May be improve using another objects rather than String
 
-
-    @RabbitListener(queues = RabbitConfig.GET_ALL_PRODUCTS_QUEUE, errorHandler = "errorHandlerForRabbit")
+    @RabbitListener(queues = RabbitConfig.QUEUE_REQUESTS, errorHandler = ERROR_HANDLER)
     @SendTo(RabbitConfig.QUEUE_RESPONSES)
-    public String processGetAllProductsRequest(String meaninglessMessage) {
+    public String processRabbitRequest(Message message) {
 
-        logger.debug("RabbitRequestReceiver's " + (new Object() {}.getClass().getEnclosingMethod().getName()) + " method was called");
-        logger.debug("Message received: {}", meaninglessMessage);
+        String header = (String)message.getMessageProperties().getHeaders().get(SERVICE_METHOD_HEADER);
+        String stringMessage = new String(message.getBody());
+        logger.debug("Message received: {}", stringMessage);
 
-        List<Product> products = productService.getAllProducts();
-        String result = JsonUtils.asJsonString(products);
+        String result = "";
+
+        switch (header) {
+            case "getAllProducts":
+                result = processGetAllProductsRequest(stringMessage);
+                break;
+            case "getProductById":
+                result = processGetProductByIdRequest(stringMessage);
+                break;
+            case "addProduct":
+                result = processAddProductRequest(stringMessage);
+                break;
+            case "searchProducts":
+                result = processSearchProductsRequest(stringMessage);
+                break;
+            default:
+                logger.debug("No handler found for given header: {}", header);
+        }
 
         logger.trace("Result string: {}", result);
         return result;
     }
 
-    @RabbitListener(queues = RabbitConfig.GET_PRODUCT_BY_ID_QUEUE, errorHandler = "errorHandlerForRabbit")
-    @SendTo(RabbitConfig.QUEUE_RESPONSES)
-    public String processGetProductByIdRequest(String id) {
+    private String processGetAllProductsRequest(String meaninglessMessage) {
 
         logger.debug("RabbitRequestReceiver's " + (new Object() {}.getClass().getEnclosingMethod().getName()) + " method was called");
-        logger.debug("Message received: id = {}", id);
+
+        List<Product> products = productService.getAllProducts();
+        return JsonUtils.asJsonString(products);
+    }
+
+    private String processGetProductByIdRequest(String id) {
+
+        logger.debug("RabbitRequestReceiver's " + (new Object() {}.getClass().getEnclosingMethod().getName()) + " method was called");
 
         /*Product product = null;
         try {
@@ -60,19 +84,12 @@ public class RabbitRequestController {
             logger.error("Error occurred in processGetProductByIdRequest method");
         }*/
         Product product = productService.getProductById(id);
-        String result = JsonUtils.asJsonString(product);
-
-        logger.trace("Result string: {}", result);
-        return result;
+        return JsonUtils.asJsonString(product);
     }
 
-    @RabbitListener(queues = RabbitConfig.ADD_PRODUCT_QUEUE, errorHandler = "errorHandlerForRabbit")
-    @SendTo(RabbitConfig.QUEUE_RESPONSES)
-    public String processAddProductRequest(String jsonProductToAdd) {
+    private String processAddProductRequest(String jsonProductToAdd) {
 
         logger.debug("RabbitRequestReceiver's " + (new Object() {}.getClass().getEnclosingMethod().getName()) + " method was called");
-        logger.debug("Message received: {}", jsonProductToAdd);
-
 
         Product product = null;
         try {
@@ -84,18 +101,12 @@ public class RabbitRequestController {
         }
 
         product = productService.addProduct(product);
-        String result = JsonUtils.asJsonString(product);
-
-        logger.trace("Result string: {}", result);
-        return result;
+        return JsonUtils.asJsonString(product);
     }
 
-    @RabbitListener(queues = RabbitConfig.SEARCH_PRODUCTS_QUEUE, errorHandler = "errorHandlerForRabbit")
-    @SendTo(RabbitConfig.QUEUE_RESPONSES)
-    public String processSearchProductsRequest(String jsonParameterMap) {
+    private String processSearchProductsRequest(String jsonParameterMap) {
 
         logger.debug("RabbitRequestReceiver's " + (new Object() {}.getClass().getEnclosingMethod().getName()) + " method was called");
-        logger.debug("Message received: {}", jsonParameterMap);
 
         Map<String, String> queryParameters = new HashMap<>();
         try {
@@ -110,9 +121,6 @@ public class RabbitRequestController {
                 queryParameters.get("parameter"),
                 queryParameters.get("value"));
 
-        String result = JsonUtils.asJsonString(names);
-
-        logger.trace("Result string: {}", result);
-        return result;
+        return JsonUtils.asJsonString(names);
     }
 }
